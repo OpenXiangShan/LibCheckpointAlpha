@@ -15,7 +15,13 @@
 
 NAME = gcpt
 
-BUILD_DIR ?= ./build
+WORK_DIR = $(CURDIR)
+
+ifdef O
+	BUILD_DIR = $(shell readlink -f $(O))/build
+else
+	BUILD_DIR = $(WORK_DIR)/build
+endif
 
 OBJ_DIR ?= $(BUILD_DIR)/obj
 BINARY ?= $(BUILD_DIR)/$(NAME)
@@ -61,5 +67,6 @@ $(BINARY): $(OBJS)
 
 app: $(BINARY)
 
+.PHONY: clean
 clean:
 	-rm -rf $(BUILD_DIR)
