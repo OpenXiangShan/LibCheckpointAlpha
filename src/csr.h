@@ -37,9 +37,6 @@
 #define NOP \
   addi x0, x0, 0;
 
-//#define CONFIG_RVH
-//#ifdef CONFIG_RVH
-
 #define HCSRS(f) \
   f(hstatus    , 0x600) f(hedeleg    , 0x602) f(hideleg    , 0x603) \
   f(hcounteren , 0x606) f(hgeie      , 0x607) \
@@ -50,23 +47,14 @@
   f(vsscratch  , 0x240) f(vsepc      , 0x241) f(vscause    , 0x242) \
   f(vstval     , 0x243) f(vsip       , 0x244) f(vsatp      , 0x280) \
   f(mtval2     , 0x34b) f(mtinst     , 0x34A)
-//#else
-//#define HCSRS(f) NOP;
-//#endif // CONFIG_RVH
-
-
-//#define CONFIG_RVV
-//#ifdef CONFIG_RVV
 
 #define VL_ID (0xc20)
 #define VTYPE_ID (0xc21)
 #define VLENB_ID (0xc22)
 
-#define VCSRS(f) \
-f(vcsr, 0x00f) \
-f(vstart, 0x008)
-
 #define VTYPE_VL_RESTORE \
+  csrr t3, CSR_MSTATUS; \
+  andi t1 ,t3, MSTATUS_VS; \
   li t0, MSTATUS_VS; \
   csrs  CSR_MSTATUS, t0; \
   li t0, CSR_REG_CPT_ADDR; \
@@ -147,7 +135,10 @@ f(vstart, 0x008)
   vl1re64.v v30, (sp); \
   addi sp,sp,16;\
   vl1re64.v v31, (sp); \
-  VTYPE_VL_RESTORE ; \
+  li t0, MSTATUS_VS; \
+  csrc CSR_MSTATUS, t0; \
+  csrs CSR_MSTATUS, t3; \
+
 
 //#else
 //#define VCSRS(f) NOP;
