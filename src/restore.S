@@ -90,7 +90,6 @@ vext_restore:
   bne t0,t1,normal_csr_restore
   RESTORE_VECTORS(CSRS_RESTORE)
   li t0, CSR_REG_CPT_ADDR
-  VCSRS(CSRS_RESTORE)
 
 normal_csr_restore:
   li t0, MSTATUS_MPP # MPP is M
