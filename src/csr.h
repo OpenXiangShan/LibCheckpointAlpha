@@ -54,7 +54,6 @@
 
 #define VTYPE_VL_RESTORE \
   csrr t3, CSR_MSTATUS; \
-  andi t1 ,t3, MSTATUS_VS; \
   li t0, MSTATUS_VS; \
   csrs  CSR_MSTATUS, t0; \
   li t0, CSR_REG_CPT_ADDR; \
@@ -135,9 +134,7 @@
   vl1re64.v v30, (sp); \
   addi sp,sp,16;\
   vl1re64.v v31, (sp); \
-  li t0, MSTATUS_VS; \
-  csrc CSR_MSTATUS, t0; \
-  csrs CSR_MSTATUS, t3; \
+  csrw CSR_MSTATUS, t3; \
 
 
 //#else
