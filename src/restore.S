@@ -36,10 +36,13 @@ boot_decide_vector:
   bne t1, t2, read_incomplete # read incomplete goto bad_trap
 
   li s0, BOOT_FLAG_ADDR
+  la s1, place_of_restore_size
+  add s0, s0, s1
   ld t1, (s0) #load boot flag
   li t2, CPT_MAGIC_BUMBER
   beq t1, t2, restore_csr_vector
-  j payload_bin # not found restore flag, goto payload
+  li t0, 0x80000000
+  jalr x0, 0(t0) # not found restore flag, goto payload
 
 #version_not_match:
 #  li a0, VERSION_NOT_MATCH
@@ -64,6 +67,8 @@ restore_trap_handler:
 #
 restore_csr_vector:
   li t0, CSR_REG_CPT_ADDR
+  la t1, place_of_restore_size
+  add t0, t0, t1
   li t2, 0x003
   slli t2, t2, 3
   add t2, t0, t2
@@ -73,6 +78,8 @@ restore_csr_vector:
   csrw 0x003, t1
 
   li t0, CSR_REG_CPT_ADDR
+  la t1, place_of_restore_size
+  add t0, t0, t1
   CSRS(CSRS_RESTORE)
 
 hext_csr_restore:
@@ -81,6 +88,8 @@ hext_csr_restore:
   and t0, t0, t1
   bne t0,t1,vext_restore
   li t0, CSR_REG_CPT_ADDR
+  la t1, place_of_restore_size
+  add t0, t0, t1
   HCSRS(CSRS_RESTORE)
 
 vext_restore:
@@ -90,10 +99,14 @@ vext_restore:
   bne t0,t1,normal_csr_restore
   RESTORE_VECTORS(CSRS_RESTORE)
   li t0, CSR_REG_CPT_ADDR
+  la t1, place_of_restore_size
+  add t0, t0, t1
 
 normal_csr_restore:
   li t0, MSTATUS_MPP # MPP is M
   li s2, MODE_CPT_ADDR
+  la t1, place_of_restore_size
+  add s2, s2, t1
   ld s2, (s2) #load mode flag into s2
   slli t1, s2, 11 # mode flag shift to MPP
   beq t0, t1, mode_bad #bad trap if mode flag is M
@@ -101,11 +114,15 @@ normal_csr_restore:
   # set mtime (inaccurate) and mtimecmp
   li t0, CLINT_MMIO+CLINT_MTIMECMP
   li t1, MTIME_CMP_CPT_ADDR
+  la t2, place_of_restore_size
+  add t1, t1, t2
   ld t1, (t1)
   sd t1, (t0)
 ###
   li t0, CLINT_MMIO+CLINT_MTIME
   li t1, MTIME_CPT_ADDR
+  la t2, place_of_restore_size
+  add t1, t1, t2
   ld t1, (t1)
   sd t1, (t0)
 
@@ -118,6 +135,8 @@ normal_csr_restore:
 
 restore_float_vector:
   li sp, FLOAT_REG_CPT_ADDR # load float section addr
+  la t0, place_of_restore_size
+  add sp, sp, t0
 
   # set fs
   li t0, MSTATUS_FS
@@ -158,6 +177,8 @@ restore_float_vector:
 
 restore_int_vector:
   li sp, INT_REG_CPT_ADDR # load int section addr
+  la t1, place_of_restore_size
+  add sp, sp, t1 # load int section addr
   ld x1, (1*8)(sp)
   ld x3, (3*8)(sp)
   ld x4, (4*8)(sp)
