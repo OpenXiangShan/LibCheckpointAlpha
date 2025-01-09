@@ -12,7 +12,7 @@ SECTIONS
   /*--------------------------------------------------------------------*/
 
   /* Beginning of code and text segment */
-  . = ALIGN(4);
+  . = 0x80000000;
   gcpt_begin = .;
 
   .restore.size :
@@ -34,8 +34,7 @@ SECTIONS
 
   gcpt_end = .;
 
-
-  . = gcpt_begin + 0x100000;
+  . = 0x80100000;
   .payload :
   {
     PROVIDE(_payload_start = .);
