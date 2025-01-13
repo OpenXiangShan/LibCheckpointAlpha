@@ -41,8 +41,19 @@ boot_decide_vector:
   ld t1, (s0) #load boot flag
   li t2, CPT_MAGIC_BUMBER
   beq t1, t2, restore_csr_vector
+  j target_to_payload
+
+target_to_payload:
+  # only support jump to memory start, when boot from flash
+  auipc t0, 0
+  li t1, 0x80000000
+  bge t0, t1, jump_payload
   li t0, 0x80000000
-  jalr x0, 0(t0) # not found restore flag, goto payload
+  jr t0
+  # if boot from memory, support jump to payload
+jump_payload:
+  li t0, 0x80100000
+  jr t0
 
 #version_not_match:
 #  li a0, VERSION_NOT_MATCH
