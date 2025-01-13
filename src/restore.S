@@ -22,8 +22,8 @@
   .option norvc
 
   .section ".restore.size","ax",@progbits
-  .globl place_of_restore_size
-place_of_restore_size:
+  .globl restorer_size_location
+restorer_size_location:
   j boot_decide_vector
   .word gcpt_end-gcpt_begin
 
@@ -36,7 +36,7 @@ boot_decide_vector:
   bne t1, t2, read_incomplete # read incomplete goto bad_trap
 
   li s0, BOOT_FLAG_ADDR
-  la s1, place_of_restore_size
+  la s1, restorer_size_location
   add s0, s0, s1
   ld t1, (s0) #load boot flag
   li t2, CPT_MAGIC_BUMBER
@@ -82,7 +82,7 @@ restore_trap_handler:
 #
 restore_csr_vector:
   li t0, CSR_REG_CPT_ADDR
-  la t1, place_of_restore_size
+  la t1, restorer_size_location
   add t0, t0, t1
   li t2, 0x003
   slli t2, t2, 3
@@ -93,7 +93,7 @@ restore_csr_vector:
   csrw 0x003, t1
 
   li t0, CSR_REG_CPT_ADDR
-  la t1, place_of_restore_size
+  la t1, restorer_size_location
   add t0, t0, t1
   CSRS(CSRS_RESTORE)
 
@@ -103,7 +103,7 @@ hext_csr_restore:
   and t0, t0, t1
   bne t0,t1,vext_restore
   li t0, CSR_REG_CPT_ADDR
-  la t1, place_of_restore_size
+  la t1, restorer_size_location
   add t0, t0, t1
   HCSRS(CSRS_RESTORE)
 
@@ -114,13 +114,13 @@ vext_restore:
   bne t0,t1,normal_csr_restore
   RESTORE_VECTORS(CSRS_RESTORE)
   li t0, CSR_REG_CPT_ADDR
-  la t1, place_of_restore_size
+  la t1, restorer_size_location
   add t0, t0, t1
 
 normal_csr_restore:
   li t0, MSTATUS_MPP # MPP is M
   li s2, MODE_CPT_ADDR
-  la t1, place_of_restore_size
+  la t1, restorer_size_location
   add s2, s2, t1
   ld s2, (s2) #load mode flag into s2
   slli t1, s2, 11 # mode flag shift to MPP
@@ -129,14 +129,14 @@ normal_csr_restore:
   # set mtime (inaccurate) and mtimecmp
   li t0, CLINT_MMIO+CLINT_MTIMECMP
   li t1, MTIME_CMP_CPT_ADDR
-  la t2, place_of_restore_size
+  la t2, restorer_size_location
   add t1, t1, t2
   ld t1, (t1)
   sd t1, (t0)
 ###
   li t0, CLINT_MMIO+CLINT_MTIME
   li t1, MTIME_CPT_ADDR
-  la t2, place_of_restore_size
+  la t2, restorer_size_location
   add t1, t1, t2
   ld t1, (t1)
   sd t1, (t0)
@@ -150,7 +150,7 @@ normal_csr_restore:
 
 restore_float_vector:
   li sp, FLOAT_REG_CPT_ADDR # load float section addr
-  la t0, place_of_restore_size
+  la t0, restorer_size_location
   add sp, sp, t0
 
   # set fs
@@ -192,7 +192,7 @@ restore_float_vector:
 
 restore_int_vector:
   li sp, INT_REG_CPT_ADDR # load int section addr
-  la t1, place_of_restore_size
+  la t1, restorer_size_location
   add sp, sp, t1 # load int section addr
   ld x1, (1*8)(sp)
   ld x3, (3*8)(sp)

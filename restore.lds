@@ -2,7 +2,7 @@
 
 OUTPUT_ARCH( "riscv" )
 
-ENTRY( place_of_restore_size )
+ENTRY( restorer_size_location )
 
 SECTIONS
 {
