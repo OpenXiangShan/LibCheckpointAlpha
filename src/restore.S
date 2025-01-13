@@ -43,6 +43,12 @@ boot_decide_vector:
   beq t1, t2, restore_csr_vector
   j target_to_payload
 
+# check the current PC address: if the PC address is
+# within the physical memory address space(>0x80000000),
+# it will jump to the fixed payload address 0x80100000.
+# otherwise, it will jump to the starting address of the
+# physical memory at 0x80000000 (when the gcpt.bin
+# is being used as a type of flash image)
 target_to_payload:
   auipc t0, 0
   li t1, 0x80000000
