@@ -44,13 +44,11 @@ boot_decide_vector:
   j target_to_payload
 
 target_to_payload:
-  # only support jump to memory start, when boot from flash
   auipc t0, 0
   li t1, 0x80000000
   bge t0, t1, jump_payload
   li t0, 0x80000000
   jr t0
-  # if boot from memory, support jump to payload
 jump_payload:
   li t0, 0x80100000
   jr t0
