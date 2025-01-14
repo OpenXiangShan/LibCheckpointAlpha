@@ -57,8 +57,8 @@
   li t0, MSTATUS_VS; \
   csrs  CSR_MSTATUS, t0; \
   li t0, CSR_REG_CPT_ADDR; \
-  la t1, restorer_size_location; \
-  add t0, t0, t1; \
+  jal ra, get_restorer_entry_pc \
+  add t0, t0, s1; \
   li t2,VTYPE_ID;\
   slli t2,t2,3; \
   add t2,t0,t2; \
@@ -72,8 +72,8 @@
 #define RESTORE_VECTORS(f) \
   VTYPE_VL_RESTORE; \
   li sp, VECTOR_REG_CPT_ADDR; \
-  la t0, restorer_size_location; \
-  add sp, sp, t0; \
+  jal ra, get_restorer_entry_pc \
+  add sp, sp, s1; \
   addi sp,sp,0;\
   vl1re64.v v0, (sp); \
   addi sp,sp,16;\

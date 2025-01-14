@@ -19,6 +19,12 @@ SECTIONS
   {
     *(.restore.size)
   }
+  . = gcpt_begin + 0x10;
+
+  .restore.location :
+  {
+    *(.restore.location)
+  }
 
   /* restore: Restore Program code section */
   .restore.code :
