@@ -2,7 +2,7 @@
 
 OUTPUT_ARCH( "riscv" )
 
-ENTRY( place_of_restore_size )
+ENTRY( restorer_size_location )
 
 SECTIONS
 {
@@ -12,12 +12,20 @@ SECTIONS
   /*--------------------------------------------------------------------*/
 
   /* Beginning of code and text segment */
-  . = 0x80000000;
+  . = ALIGN(4);
+
   gcpt_begin = .;
 
   .restore.size :
   {
     *(.restore.size)
+  }
+
+  . = gcpt_begin + 0x10;
+
+  .restore.location :
+  {
+    *(.restore.location)
   }
 
   /* restore: Restore Program code section */
@@ -34,7 +42,8 @@ SECTIONS
 
   gcpt_end = .;
 
-  . = 0x80100000;
+
+  . = gcpt_begin + 0x100000;
   .payload :
   {
     PROVIDE(_payload_start = .);

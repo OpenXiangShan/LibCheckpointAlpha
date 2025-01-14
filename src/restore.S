@@ -22,10 +22,17 @@
   .option norvc
 
   .section ".restore.size","ax",@progbits
-  .globl place_of_restore_size
-place_of_restore_size:
+  .globl restorer_size_location
+restorer_size_location:
   j boot_decide_vector
   .word gcpt_end-gcpt_begin
+
+  .section ".restore.location","ax",@progbits
+get_restorer_entry_pc:
+  auipc s1, 0
+  li t1, 0x10
+  sub s1, s1, t1
+  jalr x0, 0(ra)
 
   .section ".restore.code","ax",@progbits
   .globl boot_decide_vector
@@ -36,10 +43,28 @@ boot_decide_vector:
   bne t1, t2, read_incomplete # read incomplete goto bad_trap
 
   li s0, BOOT_FLAG_ADDR
+  jal ra, get_restorer_entry_pc
+  add s0, s0, s1
   ld t1, (s0) #load boot flag
   li t2, CPT_MAGIC_BUMBER
   beq t1, t2, restore_csr_vector
-  j payload_bin # not found restore flag, goto payload
+  j target_to_payload
+
+# check the current PC address: if the PC address is
+# within the physical memory address space(>0x80000000),
+# it will jump to the fixed payload address 0x80100000.
+# otherwise, it will jump to the starting address of the
+# physical memory at 0x80000000 (when the gcpt.bin
+# is being used as a type of flash image)
+target_to_payload:
+  auipc t0, 0
+  li t1, 0x80000000
+  bge t0, t1, jump_payload
+  li t0, 0x80000000
+  jr t0
+jump_payload:
+  li t0, 0x80100000
+  jr t0
 
 #version_not_match:
 #  li a0, VERSION_NOT_MATCH
@@ -64,6 +89,8 @@ restore_trap_handler:
 #
 restore_csr_vector:
   li t0, CSR_REG_CPT_ADDR
+  jal ra, get_restorer_entry_pc
+  add t0, t0, s1
   li t2, 0x003
   slli t2, t2, 3
   add t2, t0, t2
@@ -73,6 +100,8 @@ restore_csr_vector:
   csrw 0x003, t1
 
   li t0, CSR_REG_CPT_ADDR
+  jal ra, get_restorer_entry_pc
+  add t0, t0, s1
   CSRS(CSRS_RESTORE)
 
 hext_csr_restore:
@@ -81,6 +110,8 @@ hext_csr_restore:
   and t0, t0, t1
   bne t0,t1,vext_restore
   li t0, CSR_REG_CPT_ADDR
+  jal ra, get_restorer_entry_pc
+  add t0, t0, s1
   HCSRS(CSRS_RESTORE)
 
 vext_restore:
@@ -90,10 +121,14 @@ vext_restore:
   bne t0,t1,normal_csr_restore
   RESTORE_VECTORS(CSRS_RESTORE)
   li t0, CSR_REG_CPT_ADDR
+  jal ra, get_restorer_entry_pc
+  add t0, t0, s1
 
 normal_csr_restore:
   li t0, MSTATUS_MPP # MPP is M
   li s2, MODE_CPT_ADDR
+  jal ra, get_restorer_entry_pc
+  add s2, s2, s1
   ld s2, (s2) #load mode flag into s2
   slli t1, s2, 11 # mode flag shift to MPP
   beq t0, t1, mode_bad #bad trap if mode flag is M
@@ -101,11 +136,15 @@ normal_csr_restore:
   # set mtime (inaccurate) and mtimecmp
   li t0, CLINT_MMIO+CLINT_MTIMECMP
   li t1, MTIME_CMP_CPT_ADDR
+  jal ra, get_restorer_entry_pc
+  add t1, t1, s1
   ld t1, (t1)
   sd t1, (t0)
 ###
   li t0, CLINT_MMIO+CLINT_MTIME
   li t1, MTIME_CPT_ADDR
+  jal ra, get_restorer_entry_pc
+  add t1, t1, s1
   ld t1, (t1)
   sd t1, (t0)
 
@@ -118,6 +157,8 @@ normal_csr_restore:
 
 restore_float_vector:
   li sp, FLOAT_REG_CPT_ADDR # load float section addr
+  jal ra, get_restorer_entry_pc
+  add sp, sp, s1
 
   # set fs
   li t0, MSTATUS_FS
@@ -158,6 +199,8 @@ restore_float_vector:
 
 restore_int_vector:
   li sp, INT_REG_CPT_ADDR # load int section addr
+  jal ra, get_restorer_entry_pc
+  add sp, sp, s1 # load int section addr
   ld x1, (1*8)(sp)
   ld x3, (3*8)(sp)
   ld x4, (4*8)(sp)
