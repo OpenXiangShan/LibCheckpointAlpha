@@ -27,7 +27,7 @@ restorer_size_location:
   j boot_decide_vector
   .word gcpt_end-gcpt_begin
 
-  .section "restore.location","ax",@progbits
+  .section ".restore.location","ax",@progbits
 get_restorer_entry_pc:
   auipc s1, 0
   li t1, 0x10

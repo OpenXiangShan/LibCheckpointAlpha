@@ -13,12 +13,14 @@ SECTIONS
 
   /* Beginning of code and text segment */
   . = ALIGN(4);
+
   gcpt_begin = .;
 
   .restore.size :
   {
     *(.restore.size)
   }
+
   . = gcpt_begin + 0x10;
 
   .restore.location :
