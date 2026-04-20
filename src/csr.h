@@ -20,6 +20,7 @@
 
 #define CSRS(f) \
   f(frm        , 0x002) \
+  f(menvcfg    , 0x30a) \
   f(mstatus    , 0x300) f(medeleg    , 0x302) f(mideleg    , 0x303) \
   f(mie        , 0x304) f(mtvec      , 0x305) f(mcounteren , 0x306) \
   f(mscratch   , 0x340) f(mepc       , 0x341) f(mcause     , 0x342) \
@@ -32,6 +33,7 @@
   f(stvec      , 0x105) f(scounteren , 0x106) \
   f(sscratch   , 0x140) f(sepc       , 0x141) f(scause     , 0x142) \
   f(stval      , 0x143) \
+  f(senvcfg    , 0x10a) \
   f(satp       , 0x180)
 
 #define NOP \
