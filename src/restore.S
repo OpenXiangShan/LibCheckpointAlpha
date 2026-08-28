@@ -51,19 +51,19 @@ boot_decide_vector:
   j target_to_payload
 
 # check the current PC address: if the PC address is
-# within the physical memory address space(>0x80000000),
-# it will jump to the fixed payload address 0x80100000.
+# within the physical memory address space(>DRAM_BASE),
+# it will jump to the fixed payload address DRAM_BASE + 1 MiB.
 # otherwise, it will jump to the starting address of the
-# physical memory at 0x80000000 (when the gcpt.bin
+# physical memory at DRAM_BASE (when the gcpt.bin
 # is being used as a type of flash image)
 target_to_payload:
   auipc t0, 0
-  li t1, 0x80000000
+  li t1, DRAM_BASE
   bge t0, t1, jump_payload
-  li t0, 0x80000000
+  li t0, DRAM_BASE
   jr t0
 jump_payload:
-  li t0, 0x80100000
+  li t0, DRAM_BASE + 0x100000
   jr t0
 
 #version_not_match:
