@@ -88,6 +88,7 @@ restore_trap_handler:
 #  bne t1, t0, version_not_match
 #
 restore_csr_vector:
+#ifndef CPU_NUTSHELL
   li t0, CSR_REG_CPT_ADDR
   jal ra, get_restorer_entry_pc
   add t0, t0, s1
@@ -98,6 +99,7 @@ restore_csr_vector:
   li t0, MSTATUS_FS
   csrs  CSR_MSTATUS, t0
   csrw 0x003, t1
+#endif
 
   li t0, CSR_REG_CPT_ADDR
   jal ra, get_restorer_entry_pc
@@ -156,6 +158,7 @@ normal_csr_restore:
   # beqz t0, restore_pc_vector
 
 restore_float_vector:
+#ifndef CPU_NUTSHELL
   li sp, FLOAT_REG_CPT_ADDR # load float section addr
   jal ra, get_restorer_entry_pc
   add sp, sp, s1
@@ -197,6 +200,7 @@ restore_float_vector:
   fld f30, (30*8)(sp)
   fld f31, (31*8)(sp)
 
+#endif
 restore_int_vector:
   li sp, INT_REG_CPT_ADDR # load int section addr
   jal ra, get_restorer_entry_pc

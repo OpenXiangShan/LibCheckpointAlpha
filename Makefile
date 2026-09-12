@@ -36,8 +36,14 @@ LD = $(CROSS_COMPILE)ld
 OBJDUMP = $(CROSS_COMPILE)objdump
 OBJCOPY = $(CROSS_COMPILE)objcopy
 INCLUDES  = $(addprefix -I, $(INC_DIR))
-CFLAGS   += -fno-PIE -mcmodel=medany -O2 -MMD -Wall -Werror $(INCLUDES) -march=rv64gcv
+CFLAGS   += -fno-PIE -mcmodel=medany -O2 -MMD -Wall -Werror $(INCLUDES)
 
+# make nutshell: NutShell rv64imac restorer (no V/F/PMP/stateen/envcfg).
+ifeq ($(MAKECMDGOALS),nutshell)
+CFLAGS   += -march=rv64imac_zicsr -mabi=lp64 -DCPU_NUTSHELL
+else
+CFLAGS   += -march=rv64gcv
+endif
 
 ifdef GCPT_PAYLOAD_PATH
 CFLAGS += -DGCPT_PAYLOAD_PATH=\"$(GCPT_PAYLOAD_PATH)\"
@@ -66,7 +72,8 @@ $(BINARY): $(OBJS)
 	@$(OBJCOPY) -S --set-section-flags .bss=alloc,contents -O binary $@ $@.bin
 
 app: $(BINARY)
+nutshell: app
 
-.PHONY: clean
+.PHONY: app nutshell clean
 clean:
 	-rm -rf $(BUILD_DIR)

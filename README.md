@@ -10,6 +10,12 @@ using the following command to build gcpt.bin, which could overwrite 0x80000000 
 make clean && make
 ```
 
+NutShell rv64imac (`-DCPU_NUTSHELL`; no V/F/PMP/stateen/envcfg restore):
+
+```bash
+make clean && make nutshell
+```
+
 ## link the next level bootloader
 
 using the following command to build gcpt.bin, which could link next level bootloader, then gcpt.bin can be used boot directly
