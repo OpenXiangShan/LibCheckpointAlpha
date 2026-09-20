@@ -18,6 +18,17 @@
 
 //no mhartid here
 
+#ifdef CPU_NUTSHELL
+#define CSRS(f) \
+  f(mstatus    , 0x300) f(medeleg    , 0x302) f(mideleg    , 0x303) \
+  f(mie        , 0x304) f(mtvec      , 0x305) f(mcounteren , 0x306) \
+  f(mscratch   , 0x340) f(mepc       , 0x341) f(mcause     , 0x342) \
+  f(mtval      , 0x343) f(mip        , 0x344) \
+  f(stvec      , 0x105) f(scounteren , 0x106) \
+  f(sscratch   , 0x140) f(sepc       , 0x141) f(scause     , 0x142) \
+  f(stval      , 0x143) \
+  f(satp       , 0x180)
+#else
 #define CSRS(f) \
   f(frm        , 0x002) \
   f(menvcfg    , 0x30a) \
@@ -37,6 +48,7 @@
   f(senvcfg    , 0x10a) \
   f(sstateen0  , 0x10c) f(sstateen1  , 0x10d) f(sstateen2  , 0x10e) f(sstateen3  , 0x10f) \
   f(satp       , 0x180)
+#endif
 
 #define NOP \
   addi x0, x0, 0;
@@ -74,6 +86,9 @@
   ld t2,(t2);\
   vsetvl t2, t2, t1; \
 
+#ifdef CPU_NUTSHELL
+#define RESTORE_VECTORS(f) NOP
+#else
 #define RESTORE_VECTORS(f) \
   VTYPE_VL_RESTORE; \
   li sp, VECTOR_REG_CPT_ADDR; \
@@ -145,6 +160,7 @@
   vl1re64.v v31, (sp); \
   csrw CSR_MSTATUS, t3; \
 
+#endif // CPU_NUTSHELL
 
 //#else
 //#define VCSRS(f) NOP;
