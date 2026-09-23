@@ -73,18 +73,26 @@
   csrr t3, CSR_MSTATUS; \
   li t0, MSTATUS_VS; \
   csrs  CSR_MSTATUS, t0; \
+  li t0, 2; \
+  vsetvli x0, t0, e64, m1, ta, ma; \
   li t0, CSR_REG_CPT_ADDR; \
   jal ra, get_restorer_entry_pc; \
   add t0, t0, s1; \
   li t2,VTYPE_ID;\
   slli t2,t2,3; \
   add t2,t0,t2; \
-  ld t1,(t2);\
+  ld t4,(t2);\
   li t2,VL_ID;\
   slli t2,t2,3; \
   add t2,t0,t2; \
-  ld t2,(t2);\
-  vsetvl t2, t2, t1; \
+  ld t5,(t2);\
+
+#define RESTORE_VECTOR_REG(reg) \
+  ld t0, 0(sp); \
+  ld t1, 8(sp); \
+  vmv.v.x reg, t0; \
+  vslide1down.vx reg, reg, t1; \
+  addi sp,sp,16; \
 
 #ifdef CPU_NUTSHELL
 #define RESTORE_VECTORS(f) NOP
@@ -94,70 +102,39 @@
   li sp, VECTOR_REG_CPT_ADDR; \
   jal ra, get_restorer_entry_pc; \
   add sp, sp, s1; \
-  addi sp,sp,0;\
-  vl1re64.v v0, (sp); \
-  addi sp,sp,16;\
-  vl1re64.v v1, (sp); \
-  addi sp,sp,16;\
-  vl1re64.v v2, (sp); \
-  addi sp,sp,16;\
-  vl1re64.v v3, (sp); \
-  addi sp,sp,16;\
-  vl1re64.v v4, (sp); \
-  addi sp,sp,16;\
-  vl1re64.v v5, (sp); \
-  addi sp,sp,16;\
-  vl1re64.v v6, (sp); \
-  addi sp,sp,16;\
-  vl1re64.v v7, (sp); \
-  addi sp,sp,16;\
-  vl1re64.v v8, (sp); \
-  addi sp,sp,16;\
-  vl1re64.v v9, (sp); \
-  addi sp,sp,16;\
-  vl1re64.v v10, (sp); \
-  addi sp,sp,16;\
-  vl1re64.v v11, (sp); \
-  addi sp,sp,16;\
-  vl1re64.v v12, (sp); \
-  addi sp,sp,16;\
-  vl1re64.v v13, (sp); \
-  addi sp,sp,16;\
-  vl1re64.v v14, (sp); \
-  addi sp,sp,16;\
-  vl1re64.v v15, (sp); \
-  addi sp,sp,16;\
-  vl1re64.v v16, (sp); \
-  addi sp,sp,16;\
-  vl1re64.v v17, (sp); \
-  addi sp,sp,16;\
-  vl1re64.v v18, (sp); \
-  addi sp,sp,16;\
-  vl1re64.v v19, (sp); \
-  addi sp,sp,16;\
-  vl1re64.v v20, (sp); \
-  addi sp,sp,16;\
-  vl1re64.v v21, (sp); \
-  addi sp,sp,16;\
-  vl1re64.v v22, (sp); \
-  addi sp,sp,16;\
-  vl1re64.v v23, (sp); \
-  addi sp,sp,16;\
-  vl1re64.v v24, (sp); \
-  addi sp,sp,16;\
-  vl1re64.v v25, (sp); \
-  addi sp,sp,16;\
-  vl1re64.v v26, (sp); \
-  addi sp,sp,16;\
-  vl1re64.v v27, (sp); \
-  addi sp,sp,16;\
-  vl1re64.v v28, (sp); \
-  addi sp,sp,16;\
-  vl1re64.v v29, (sp); \
-  addi sp,sp,16;\
-  vl1re64.v v30, (sp); \
-  addi sp,sp,16;\
-  vl1re64.v v31, (sp); \
+  RESTORE_VECTOR_REG(v0) \
+  RESTORE_VECTOR_REG(v1) \
+  RESTORE_VECTOR_REG(v2) \
+  RESTORE_VECTOR_REG(v3) \
+  RESTORE_VECTOR_REG(v4) \
+  RESTORE_VECTOR_REG(v5) \
+  RESTORE_VECTOR_REG(v6) \
+  RESTORE_VECTOR_REG(v7) \
+  RESTORE_VECTOR_REG(v8) \
+  RESTORE_VECTOR_REG(v9) \
+  RESTORE_VECTOR_REG(v10) \
+  RESTORE_VECTOR_REG(v11) \
+  RESTORE_VECTOR_REG(v12) \
+  RESTORE_VECTOR_REG(v13) \
+  RESTORE_VECTOR_REG(v14) \
+  RESTORE_VECTOR_REG(v15) \
+  RESTORE_VECTOR_REG(v16) \
+  RESTORE_VECTOR_REG(v17) \
+  RESTORE_VECTOR_REG(v18) \
+  RESTORE_VECTOR_REG(v19) \
+  RESTORE_VECTOR_REG(v20) \
+  RESTORE_VECTOR_REG(v21) \
+  RESTORE_VECTOR_REG(v22) \
+  RESTORE_VECTOR_REG(v23) \
+  RESTORE_VECTOR_REG(v24) \
+  RESTORE_VECTOR_REG(v25) \
+  RESTORE_VECTOR_REG(v26) \
+  RESTORE_VECTOR_REG(v27) \
+  RESTORE_VECTOR_REG(v28) \
+  RESTORE_VECTOR_REG(v29) \
+  RESTORE_VECTOR_REG(v30) \
+  RESTORE_VECTOR_REG(v31) \
+  vsetvl x0, t5, t4; \
   csrw CSR_MSTATUS, t3; \
 
 #endif // CPU_NUTSHELL
