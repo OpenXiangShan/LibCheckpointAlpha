@@ -137,15 +137,15 @@ normal_csr_restore:
 
   # set mtime (inaccurate) and mtimecmp
   li t0, CLINT_MMIO+CLINT_MTIMECMP
-  li t1, MTIME_CMP_CPT_ADDR
   jal ra, get_restorer_entry_pc
+  li t1, MTIME_CMP_CPT_ADDR
   add t1, t1, s1
   ld t1, (t1)
   sd t1, (t0)
 ###
   li t0, CLINT_MMIO+CLINT_MTIME
-  li t1, MTIME_CPT_ADDR
   jal ra, get_restorer_entry_pc
+  li t1, MTIME_CPT_ADDR
   add t1, t1, s1
   ld t1, (t1)
   sd t1, (t0)
